@@ -97,11 +97,11 @@ fatecast 1d20 --json
 
 FateCast follows a layered architecture to ensure maintainability and testability:
 
-1.  **CLI Controller (`src/cli.js`):** Manages user input and application flow using `commander` and `inquirer`.
-2.  **Parser (`src/parser.js`):** Validates and structures raw input strings.
-3.  **Dice Engine (`src/dice-engine.js`):** Pure business logic that executes the roll.
-4.  **RNG Service (`src/utils.js`):** Wraps `crypto` for secure entropy.
-5.  **UI View (`src/ui.js`):** Handles terminal formatting and `chalk` styling.
+1.  **CLI Controller (`src/cli.ts`):** Manages user input and application flow using `commander` and `readline`.
+2.  **Parser (`src/parser.ts`):** Validates and structures raw input strings.
+3.  **Dice Engine (`src/dice-engine.ts`):** Pure business logic that executes the roll.
+4.  **RNG Service (`src/utils.ts`):** Wraps `crypto` for secure entropy.
+5.  **UI View (`src/ui.ts`):** Handles terminal formatting and `chalk` styling.
 
 ## 📝 License
 

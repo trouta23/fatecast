@@ -32,15 +32,15 @@ To ensure maintainability, testability, and a clear separation of concerns, the 
 ### 4.2. Components
 
 *   `bin/fatecast`: The executable entry point. Its only job is to launch the Node.js application.
-*   `src/cli.js`: **CLI Controller.** Uses `commander` to define commands and flags. Manages the application flow, orchestrating calls to the other layers based on user input. It will handle both pipeline and interactive modes.
-*   `src/dice-engine.js`: **Dice Engine.** The heart of the application. It takes a parsed command object (e.g., `{dice: 2, sides: 20, modifier: 5}`) and uses the RNG service to perform the roll, returning a structured `RollResult` object.
-*   `src/parser.js`: **Parser.** Responsible for converting raw string input (e.g., "2d20+5") into a structured, validated command object for the Dice Engine.
-*   `src/utils.js`: **Utilities.** A collection of helper functions, most importantly the `secureRoll` function which wraps Node.js's `crypto.randomInt`.
-*   `src/ui.js`: **Terminal UI View.** Uses `chalk` to format `RollResult` objects for display in the terminal. It will handle semantic coloring (e.g., for critical hits/misses) and respect `NO_COLOR` conventions.
+*   `src/cli.ts`: **CLI Controller.** Uses `commander` to define commands and flags. Manages the application flow, orchestrating calls to the other layers based on user input. It will handle both pipeline and interactive modes.
+*   `src/dice-engine.ts`: **Dice Engine.** The heart of the application. It takes a parsed command object (e.g., `{dice: 2, sides: 20, modifier: 5}`) and uses the RNG service to perform the roll, returning a structured `RollResult` object.
+*   `src/parser.ts`: **Parser.** Responsible for converting raw string input (e.g., "2d20+5") into a structured, validated command object for the Dice Engine.
+*   `src/utils.ts`: **Utilities.** A collection of helper functions, most importantly the `secureRoll` function which wraps Node.js's `crypto.randomInt`.
+*   `src/ui.ts`: **Terminal UI View.** Uses `chalk` to format `RollResult` objects for display in the terminal. It will handle semantic coloring (e.g., for critical hits/misses) and respect `NO_COLOR` conventions.
 
 ## 5. Technical Details
 
-*   **Language:** JavaScript (Node.js)
+*   **Language:** TypeScript (Node.js)
 *   **Module System:** ES Modules (`"type": "module"` in `package.json`).
 *   **Key Dependencies:**
     *   `commander`: For robust command-line argument parsing.

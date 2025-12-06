@@ -81,15 +81,18 @@ The code is modular, avoiding the "God File" anti-pattern:
 .
 ├── bin/
 │   └── fatecast       # Executable entry point
+├── dist/              # Compiled JavaScript output
 ├── src/
-│   ├── cli.js         # Command-line controller
-│   ├── dice-engine.js # Core logic (rolling, summing)
-│   ├── index.js       # Library exports
-│   ├── parser.js      # Regex parsing logic
-│   ├── ui.js          # Terminal output & coloring
-│   └── utils.js       # Secure RNG & constants
+│   ├── cli.ts         # Command-line controller
+│   ├── dice-engine.ts # Core logic (rolling, summing)
+│   ├── index.ts       # Library exports
+│   ├── parser.ts      # Regex parsing logic
+│   ├── types.ts       # TypeScript interfaces
+│   ├── ui.ts          # Terminal output & coloring
+│   └── utils.ts       # Secure RNG & constants
 ├── DESIGN.md          # Detailed architectural documentation
-└── package.json       # Dependencies & configuration
+├── package.json       # Dependencies & configuration
+└── tsconfig.json      # TypeScript configuration
 ```
 
 ## 🔮 Future Roadmap
