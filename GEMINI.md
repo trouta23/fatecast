@@ -1,109 +1,35 @@
-# FateCast: D&D Dice Roller - Project Guide
+# FateCast: Project Context & Expert Guidelines
 
-This `GEMINI.md` serves as your personal guide to the **FateCast** project. It outlines how to use the tool, the technical decisions made during its construction, and how to extend it in the future.
+You are an expert Senior Software Architect specializing in Node.js CLI tools and TypeScript. This file serves as your primary context for understanding the "FateCast" project.
 
-## 🚀 Quick Start
+## 🧠 Core Identity
+*   **Project:** FateCast (Secure D&D Dice Roller)
+*   **Stack:** Node.js (ESM), TypeScript, Commander, Chalk.
+*   **Philosophy:** "Defensive Engineering" — Security and Stability first.
 
-### 1. Installation
-Ensure you have Node.js installed. Then, from the project root:
+## 📜 Architectural Standards (ADRs)
+You must strictly adhere to the decisions recorded in the `docs/architecture/` directory.
+*   **RNG:** @docs/architecture/001-secure-rng.md (NEVER use Math.random)
+*   **Structure:** @docs/architecture/002-layered-architecture.md (Separation of Concerns)
+*   **Typing:** @docs/architecture/003-strict-typescript.md (No `any`)
 
+## 🛠 Development Rules
+1.  **Build First:** Always run `npm run build` to verify changes.
+2.  **Type Safety:** Interfaces must be defined in `src/types.ts`.
+3.  **User Experience:**
+    *   Interactive mode must support History (Up/Down arrows).
+    *   Output must be colored (Green/Red) for criticals.
+
+## 📂 Project Map
+*   `src/dice-engine.ts`: PURE LOGIC. No I/O.
+*   `src/parser.ts`: PURE LOGIC. Regex & Validation.
+*   `src/cli.ts`: CONTROLLER. Handles I/O & Commands.
+*   `src/ui.ts`: VIEW. Handles Formatting & Colors.
+
+## 🚀 Quick Start (For You)
+To run the tool during development:
 ```bash
-npm install
-npm run build # Compiles TypeScript to JavaScript
+npx tsx src/cli.ts 2d20
+# or
+npm run build && ./bin/fatecast
 ```
-
-### 2. Running the Tool
-
-**Option A: Run Locally**
-Run directly from the project directory:
-```bash
-./bin/fatecast
-./bin/fatecast 2d20+5
-```
-
-**Option B: Run Globally (Optional)**
-Run `npm link` once to make the command available system-wide:
-```bash
-npm link
-fatecast
-```
-
-**Interactive Mode (REPL):**
-Ideal for game sessions.
-```bash
-./bin/fatecast
-# Output:
-# 🎲 Welcome to FateCast 🎲
-# Roll >
-```
-
-**Pipeline Mode (One-off):**
-Ideal for quick checks or scripts.
-```bash
-./bin/fatecast 2d20+5
-# Output: 25
-```
-
-**Verbose Output:**
-See the individual die rolls.
-```bash
-./bin/fatecast 4d6+2 --verbose
-# Output:
-# Input: 4d6+2
-# Rolls: [3, 6, 1, 4] +2
-# Total: 16
-```
-
-## 🛠 Technical Highlights
-
-This isn't just a toy script; it's engineered for reliability and security.
-
-### 1. Cryptographically Secure RNG
-We do **not** use `Math.random()`. Instead, we use Node.js's `crypto.randomInt` in `src/utils.js`.
-*   **Why?** `Math.random()` is predictable. `crypto.randomInt` ensures fair, unbiased rolls suitable for high-stakes gameplay.
-
-### 2. Defensive Parsing
-The parser in `src/parser.js` uses a **strictly anchored regex** and **input truncation**.
-*   **Why?** This prevents "ReDoS" (Regular Expression Denial of Service) attacks where a malicious user could freeze the application with a massive, complex string.
-*   **Limit:** Input is capped at 50 characters.
-
-### 3. Architecture
-The code is modular, avoiding the "God File" anti-pattern:
-*   `bin/fatecast`: Entry point.
-*   `src/cli.js`: Controls the flow (Commander/Inquirer).
-*   `src/parser.js`: Validates and parses strings.
-*   `src/dice-engine.js`: Performs the math and rolling.
-*   `src/ui.js`: Handles colors (Chalk) and formatting.
-
-## 📁 Project Structure
-
-```text
-.
-├── bin/
-│   └── fatecast       # Executable entry point
-├── dist/              # Compiled JavaScript output
-├── src/
-│   ├── cli.ts         # Command-line controller
-│   ├── dice-engine.ts # Core logic (rolling, summing)
-│   ├── index.ts       # Library exports
-│   ├── parser.ts      # Regex parsing logic
-│   ├── types.ts       # TypeScript interfaces
-│   ├── ui.ts          # Terminal output & coloring
-│   └── utils.ts       # Secure RNG & constants
-├── DESIGN.md          # Detailed architectural documentation
-├── package.json       # Dependencies & configuration
-└── tsconfig.json      # TypeScript configuration
-```
-
-## 🔮 Future Roadmap
-
-As outlined in `DESIGN.md`, the following features are prepped for future development:
-
-1.  **Advanced Mechanics:** Parsing `kh1` (Keep Highest), `dl1` (Drop Lowest), and `!` (Exploding dice). The parser regex already partially supports capturing these!
-2.  **Macros:** Saving common rolls (e.g., `save attack 1d20+5`).
-3.  **Config:** Reading a `~/.fatecastrc` file for user preferences.
-
-## 📝 Notes for You
-
-*   **Colors:** Critical hits (Natural 20) turn **Green**. Critical fails (Natural 1) turn **Red**.
-*   **JSON:** Use `--json` if you ever want to integrate this with another tool (like a Discord bot).
