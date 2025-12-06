@@ -49,30 +49,39 @@ async function startInteractiveMode(options) {
   // Let's keep passed options but interactive usually implies verbose-ish or pretty.
   const sessionOptions = { ...options, interactive: true };
 
-  while (true) {
-    const answers = await inquirer.prompt([
-      {
-        type: 'input',
-        name: 'command',
-        message: 'Roll >',
-        prefix: '', // Clean look
-        validate: (input) => {
-           if (input.trim() === '') return 'Please enter a command.';
-           return true;
+  try {
+    while (true) {
+      const answers = await inquirer.prompt([
+        {
+          type: 'input',
+          name: 'command',
+          message: 'Roll >',
+          prefix: '', // Clean look
+          validate: (input) => {
+             if (input.trim() === '') return 'Please enter a command.';
+             return true;
+          }
         }
+      ]);
+
+      const input = answers.command.trim();
+
+      if (input.toLowerCase() === 'exit' || input.toLowerCase() === 'quit') {
+        console.log('Farewell!');
+        break;
       }
-    ]);
 
-    const input = answers.command.trim();
-
-    if (input.toLowerCase() === 'exit' || input.toLowerCase() === 'quit') {
-      console.log('Farewell!');
-      break;
+      // Handle just hitting enter or empty is caught by validate, 
+      // but good to be safe.
+      
+      await handleRoll(input, sessionOptions);
     }
-
-    // Handle just hitting enter or empty is caught by validate, 
-    // but good to be safe.
-    
-    await handleRoll(input, sessionOptions);
+  } catch (error) {
+    if (error.name === 'ExitPromptError' || error.message.includes('User force closed')) {
+      // User pressed Ctrl+C or similar
+      console.log('\nFarewell!');
+    } else {
+      throw error;
+    }
   }
 }

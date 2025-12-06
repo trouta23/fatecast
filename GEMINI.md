@@ -9,10 +9,23 @@ Ensure you have Node.js installed. Then, from the project root:
 
 ```bash
 npm install
-npm link # Optional: makes 'fatecast' available globally
 ```
 
 ### 2. Running the Tool
+
+**Option A: Run Locally**
+Run directly from the project directory:
+```bash
+./bin/fatecast
+./bin/fatecast 2d20+5
+```
+
+**Option B: Run Globally (Optional)**
+Run `npm link` once to make the command available system-wide:
+```bash
+npm link
+fatecast
+```
 
 **Interactive Mode (REPL):**
 Ideal for game sessions.

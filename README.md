@@ -14,21 +14,38 @@
 *   **Visual Feedback:** Semantic coloring for Critical Hits (Natural 20) and Critical Misses (Natural 1).
 *   **Developer Friendly:** Supports JSON output (`--json`) for easy integration into Discord bots or other tools.
 
-## 📦 Installation
+## 📦 Installation & Setup
 
 Ensure you have [Node.js](https://nodejs.org/) (v14 or higher) installed.
 
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/dnd-dice-roller.git
-cd dnd-dice-roller
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/yourusername/dnd-dice-roller.git
+   cd dnd-dice-roller
+   ```
 
-# Install dependencies
-npm install
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
 
-# Link the binary globally (optional)
-npm link
-```
+3. **Run the tool:**
+
+   **Option A: Run Locally (No setup required)**
+   Run the script directly from the project folder:
+   ```bash
+   ./bin/fatecast
+   ```
+
+   **Option B: Install Globally (Optional)**
+   To use the `fatecast` command anywhere in your terminal, run:
+   ```bash
+   npm link
+   ```
+   Then you can simply type:
+   ```bash
+   fatecast
+   ```
 
 ## 🚀 Usage
 
