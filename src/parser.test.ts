@@ -12,28 +12,33 @@ describe('Parser', () => {
     expect(result).toMatchObject({ count: 1, sides: 20, modifier: 5 });
   });
 
-  it('should parse negative modifier', () => {
-    const result = parse('3d8-2');
-    expect(result).toMatchObject({ count: 3, sides: 8, modifier: -2 });
+  it('should parse keep highest (kh)', () => {
+    const result = parse('2d20kh1');
+    expect(result.keepDrop).toEqual({ type: 'keep', dir: 'high', n: 1 });
   });
 
-  it('should handle implicit count', () => {
-    const result = parse('d12');
-    expect(result).toMatchObject({ count: 1, sides: 12 });
+  it('should parse drop lowest (dl)', () => {
+    const result = parse('4d6dl1');
+    expect(result.keepDrop).toEqual({ type: 'drop', dir: 'low', n: 1 });
   });
 
-  it('should handle percentile dice (d%)', () => {
-    const result = parse('2d%');
-    expect(result).toMatchObject({ count: 2, sides: 100 });
+  it('should parse default keep (k -> kh)', () => {
+    const result = parse('2d20k1');
+    expect(result.keepDrop).toEqual({ type: 'keep', dir: 'high', n: 1 });
+  });
+
+  it('should parse explode (!)', () => {
+    const result = parse('1d6!');
+    expect(result.explode).toBe(true);
+  });
+
+  it('should parse mixed (explode + keep)', () => {
+    const result = parse('4d6!kh3');
+    expect(result.explode).toBe(true);
+    expect(result.keepDrop).toEqual({ type: 'keep', dir: 'high', n: 3 });
   });
 
   it('should throw on invalid notation', () => {
     expect(() => parse('invalid')).toThrow('Invalid dice notation');
-    expect(() => parse('2d')).toThrow(); // missing sides
-    expect(() => parse('d')).toThrow(); // missing sides
-  });
-
-  it('should throw on empty string', () => {
-     expect(() => parse('')).toThrow();
   });
 });

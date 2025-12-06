@@ -70,6 +70,30 @@ fatecast 2d20+5
 # Output: 19
 ```
 
+### Advanced Mechanics
+
+FateCast supports complex rolling strategies often used in modern TTRPGs:
+
+| Syntax | Description | Example | Use Case |
+| :--- | :--- | :--- | :--- |
+| `khN` | **Keep Highest N** | `2d20kh1` | D&D 5e Advantage |
+| `klN` | **Keep Lowest N** | `2d20kl1` | D&D 5e Disadvantage |
+| `dlN` | **Drop Lowest N** | `4d6dl1` | Stat Generation |
+| `dhN` | **Drop Highest N** | `4d6dh1` | |
+| `!` | **Exploding Dice** | `1d6!` | Shadowrun / WoD (Aces) |
+
+**Examples:**
+```bash
+# Roll stats (4d6, drop lowest)
+fatecast 4d6dl1 --verbose
+# Output:
+# Rolls: [3, 5, 6, <s>1</s>]
+# Total: 14
+
+# Roll with Advantage
+fatecast 2d20kh1
+```
+
 ### Options & Flags
 
 | Flag | Description |

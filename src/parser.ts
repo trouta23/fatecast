@@ -1,38 +1,34 @@
 import { LIMITS } from './utils.js';
-import { DiceCommand } from './types.js';
+import { DiceCommand, KeepDrop } from './types.js';
 
 /**
- * Strictly Anchored Regex for MVP.
+ * Safe Regex for Advanced Mechanics
+ * Groups:
+ * 1. Count (Optional)
+ * 2. Sides (Required, can be '%')
+ * 3. Explode (!) (Optional)
+ * 4. Keep/Drop (e.g., 'kh1', 'dl2') (Optional)
+ * 5. Modifier (+/- Z) (Optional)
  */
-const SAFE_REGEX = /^([1-9]\d*)?d([1-9]\d*|%)([a-z]*\d+)?([+-]\d+)?$/i;
+const SAFE_REGEX = /^([1-9]\d*)?d([1-9]\d*|%)(!?)([kd][lh]?\d+)?([+-]\d+)?$/i;
+const KD_REGEX = /([kd])([lh]?)(\d+)/i;
 
-/**
- * Parses a dice notation string into a structured command object.
- * @param input - The raw input string.
- * @returns The parsed command object.
- * @throws {Error} If the input is invalid or malformed.
- */
 export function parse(input: string): DiceCommand {
   if (!input || typeof input !== 'string') {
     throw new Error('Input must be a non-empty string.');
   }
 
-  // 1. Input Truncation (ReDoS Prevention)
+  // 1. Input Truncation
   const cleanInput = input.trim().substring(0, LIMITS.MAX_INPUT_LENGTH);
 
   // 2. Regex Validation
   const match = cleanInput.match(SAFE_REGEX);
 
   if (!match) {
-    throw new Error(`Invalid dice notation: "${cleanInput}". Expected format: XdY+Z (e.g., "2d6+3").`);
+    throw new Error(`Invalid dice notation: "${cleanInput}". Expected format: XdY[!][khN|dlN][+Z]`);
   }
 
   // 3. Extract Groups
-  // match[1] = Count (undefined if implicit 1)
-  // match[2] = Sides (or '%')
-  // match[3] = Special Ops (Keep/Drop)
-  // match[4] = Modifier (+/- Z)
-
   const count = match[1] ? parseInt(match[1], 10) : 1;
   
   let sides: number;
@@ -42,18 +38,46 @@ export function parse(input: string): DiceCommand {
     sides = parseInt(match[2], 10);
   }
 
+  const explode = match[3] === '!';
+  
+  let keepDrop: KeepDrop | null = null;
+  const kdString = match[4];
+
+  if (kdString) {
+    const kdMatch = kdString.match(KD_REGEX);
+    if (kdMatch) {
+      const typeChar = kdMatch[1].toLowerCase();
+      const dirChar = kdMatch[2].toLowerCase();
+      const n = parseInt(kdMatch[3], 10);
+
+      // Defaults
+      let type: 'keep' | 'drop' = typeChar === 'k' ? 'keep' : 'drop';
+      let dir: 'high' | 'low';
+
+      if (dirChar === 'h') dir = 'high';
+      else if (dirChar === 'l') dir = 'low';
+      else {
+        // Default direction if omitted
+        // k -> kh (Keep High)
+        // d -> dl (Drop Low)
+        dir = type === 'keep' ? 'high' : 'low';
+      }
+
+      keepDrop = { type, dir, n };
+    }
+  }
+
   let modifier = 0;
-  if (match[4]) {
-    modifier = parseInt(match[4], 10);
+  if (match[5]) {
+    modifier = parseInt(match[5], 10);
   }
   
-  const specialOp = match[3] || null;
-
   return {
     count,
     sides,
     modifier,
-    specialOp,
+    explode,
+    keepDrop,
     original: cleanInput
   };
 }

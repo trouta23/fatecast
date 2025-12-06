@@ -26,6 +26,11 @@ You must strictly adhere to the decisions recorded in the `docs/architecture/` d
 *   `src/cli.ts`: CONTROLLER. Handles I/O & Commands.
 *   `src/ui.ts`: VIEW. Handles Formatting & Colors.
 
+## ✅ Supported Notation
+*   Standard: `XdY+Z` (e.g., `2d6+3`)
+*   Keep/Drop: `khN` (Keep High), `klN`, `dhN`, `dlN` (e.g., `4d6dl1`)
+*   Exploding: `!` (e.g., `1d6!`)
+
 ## 🚀 Quick Start (For You)
 To run the tool during development:
 ```bash

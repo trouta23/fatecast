@@ -44,8 +44,8 @@ To ensure maintainability, testability, and a clear separation of concerns, the 
 *   **Module System:** ES Modules (`"type": "module"` in `package.json`).
 *   **Key Dependencies:**
     *   `commander`: For robust command-line argument parsing.
-    *   `inquirer`: For a rich interactive REPL experience.
     *   `chalk`: For terminal styling and color.
+    *   `readline`: Native Node.js module for interactive history support.
 
 ## 6. Parsing Strategy
 
@@ -55,7 +55,7 @@ Parsing user input is a critical and sensitive part of the application. A naive 
 
 For the initial version, we will use a single, strictly-anchored regular expression. This provides a reasonable balance between functionality and security.
 
-*   **Pattern:** `^([1-9]\d*)?d([1-9]\d+|%)([lLhH]?\d+)?([+-]\d+)?$`
+*   **Pattern:** `^([1-9]\d*)?d([1-9]\d*|%)([lLhH]?\d+)?([+-]\d+)?$`
     *   `^` and `$` anchors ensure the entire string must match, preventing partial matches and inefficient backtracking.
     *   Groups will capture the number of dice, sides, and modifiers.
 *   **Sanitization:** All input strings will be truncated to a safe length (e.g., 50 characters) *before* being tested against the regex to mitigate any remaining ReDoS risk.
@@ -90,7 +90,7 @@ This mode is for users who want to get a result quickly or use the tool in scrip
 
 This mode provides a richer, session-based experience.
 *   **Invocation:** `fatecast` (with no arguments).
-*   **Implementation:** An asynchronous loop using `inquirer` will prompt the user for input, display the result, and repeat.
+*   **Implementation:** An asynchronous loop using Node's native `readline` module prompts the user for input.
 *   **Features:** Will support command history (up-arrow) and provide a more "application-like" feel than the native `readline` module.
 
 ## 9. Defensive Engineering
@@ -104,21 +104,21 @@ To ensure the application is stable and secure, we will enforce strict limits on
 *   **Input Length:** 50 characters (Primary defense against ReDoS).
 *   **Memory Management:** For features like roll history, a circular buffer will be used to ensure a constant memory footprint.
 
-## 10. Roadmap & Future Enhancements
-
-The initial version will focus on the core features described above. The following enhancements are planned for future releases.
+## 10. Implemented Features
 
 ### 10.1. Advanced Dice Mechanics
 
 *   **Keep/Drop:** `4d6dl1` (roll 4 d6, drop the lowest 1).
 *   **Exploding Dice:** `1d6!` (if a 6 is rolled, roll again and add).
-*   **Target Numbers:** `10d6>4` (count the number of dice that roll 4 or higher).
 
-### 10.2. User Configuration & Macros
+## 11. Roadmap & Future Enhancements
+
+The following enhancements are planned for future releases.
+
+### 11.1. User Configuration & Macros
 
 *   **Macros:** `fatecast save attack 1d20+7` to save a common roll.
 *   **Configuration File:** A `~/.fatecastrc` file to set user preferences (e.g., default to verbose output).
 
-### 10.3. System Integration
-
-*   **Expanded JSON Output:** The schema for the `--json` output will be expanded to include more detailed information, such as which dice were dropped.
+### 11.2. Additional Mechanics
+*   **Target Numbers:** `10d6>4` (count the number of dice that roll 4 or higher).
