@@ -1,12 +1,13 @@
 import { Command } from 'commander';
-import { createInterface } from 'readline'; // Native Node.js REPL support
+import { createInterface } from 'readline';
 import { parse } from './parser.js';
 import { roll } from './dice-engine.js';
 import * as ui from './ui.js'; 
+import { CLIOptions } from './types.js';
 
 const program = new Command();
 
-export function run() {
+export function run(): void {
   program
     .name('fatecast')
     .description('A secure and robust command-line D&D dice roller.')
@@ -14,7 +15,7 @@ export function run() {
     .argument('[notation]', 'Dice notation (e.g., "2d20+5")')
     .option('--json', 'Output result as JSON')
     .option('--verbose', 'Show detailed roll results')
-    .action(async (notation, options) => {
+    .action(async (notation: string | undefined, options: CLIOptions) => {
       if (notation) {
         // Pipeline Mode
         await handleRoll(notation, options);
@@ -27,13 +28,18 @@ export function run() {
   program.parse();
 }
 
-async function handleRoll(notation, options) {
+async function handleRoll(notation: string, options: CLIOptions): Promise<void> {
   try {
     const command = parse(notation);
     const result = roll(command);
     ui.display(result, options);
   } catch (error) {
-    ui.displayError(error, options);
+    if (error instanceof Error) {
+        ui.displayError(error, options);
+    } else {
+        ui.displayError(new Error(String(error)), options);
+    }
+    
     // In pipeline mode, exit with error code if something fails
     if (!options.interactive) { 
       process.exitCode = 1;
@@ -41,10 +47,10 @@ async function handleRoll(notation, options) {
   }
 }
 
-async function startInteractiveMode(options) {
+async function startInteractiveMode(options: CLIOptions): Promise<void> {
   ui.displayWelcome();
 
-  const sessionOptions = { ...options, interactive: true };
+  const sessionOptions: CLIOptions = { ...options, interactive: true };
 
   // using readline interface for history support
   const rl = createInterface({
@@ -64,8 +70,6 @@ async function startInteractiveMode(options) {
     }
 
     if (input) {
-      // We wait for the roll logic, but readline doesn't strictly await event listeners.
-      // However, since console.log is sync usually, it's fine.
       await handleRoll(input, sessionOptions);
     }
 

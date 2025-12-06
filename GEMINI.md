@@ -9,6 +9,7 @@ Ensure you have Node.js installed. Then, from the project root:
 
 ```bash
 npm install
+npm run build # Compiles TypeScript to JavaScript
 ```
 
 ### 2. Running the Tool

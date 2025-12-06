@@ -1,11 +1,12 @@
 import { secureRoll, LIMITS } from './utils.js';
+import { DiceCommand, RollResult } from './types.js';
 
 /**
  * Executes a parsed dice command.
- * @param {object} command - The parsed command object from src/parser.js.
- * @returns {object} The result of the roll.
+ * @param command - The parsed command object.
+ * @returns The result of the roll.
  */
-export function roll(command) {
+export function roll(command: DiceCommand): RollResult {
   const { count, sides, modifier, specialOp, original } = command;
 
   // 1. Validation
@@ -23,7 +24,7 @@ export function roll(command) {
   }
 
   // 2. Execution
-  const rolls = [];
+  const rolls: number[] = [];
   let sum = 0;
 
   for (let i = 0; i < count; i++) {

@@ -29,7 +29,12 @@ Ensure you have [Node.js](https://nodejs.org/) (v14 or higher) installed.
    npm install
    ```
 
-3. **Run the tool:**
+3. **Build the project:**
+   ```bash
+   npm run build
+   ```
+
+4. **Run the tool:**
 
    **Option A: Run Locally (No setup required)**
    Run the script directly from the project folder:

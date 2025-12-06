@@ -2,13 +2,17 @@
   "name": "dnd-dice-roller",
   "version": "1.0.0",
   "description": "A secure and robust command-line D&D dice roller.",
-  "main": "src/index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "type": "module",
   "bin": {
     "fatecast": "./bin/fatecast"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "clean": "rimraf dist",
+    "prebuild": "npm run clean",
+    "build": "tsc"
   },
   "keywords": [
     "dnd",
@@ -23,5 +27,11 @@
     "chalk": "^5.6.2",
     "commander": "^14.0.2",
     "inquirer": "^13.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.1",
+    "rimraf": "^6.0.1",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
   }
 }

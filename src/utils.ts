@@ -8,15 +8,15 @@ export const LIMITS = {
   MAX_SIDES: 1000,
   MAX_MODIFIER: 1000,
   MAX_INPUT_LENGTH: 50,
-};
+} as const;
 
 /**
  * Generates a cryptographically secure random integer between 1 and `sides` (inclusive).
- * @param {number} sides - The number of sides on the die.
- * @returns {number} A random integer between 1 and sides.
+ * @param sides - The number of sides on the die.
+ * @returns A random integer between 1 and sides.
  * @throws {Error} If sides is less than 1.
  */
-export function secureRoll(sides) {
+export function secureRoll(sides: number): number {
   if (sides < 1) {
     throw new Error('Dice must have at least 1 side.');
   }
