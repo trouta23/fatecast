@@ -103,6 +103,18 @@ FateCast follows a layered architecture to ensure maintainability and testabilit
 4.  **RNG Service (`src/utils.ts`):** Wraps `crypto` for secure entropy.
 5.  **UI View (`src/ui.ts`):** Handles terminal formatting and `chalk` styling.
 
+## 🧪 Testing
+
+The project includes a comprehensive test suite using **Vitest**.
+
+```bash
+# Run all tests once
+npm test
+
+# Run tests in watch mode (for development)
+npm run test:watch
+```
+
 ## 📝 License
 
 This project is licensed under the ISC License.
