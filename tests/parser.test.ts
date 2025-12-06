@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { parse } from './parser.js';
-import { TokenType } from './types.js';
+import { parse } from '../src/parser.js';
+import { TokenType } from '../src/types.js';
 
 describe('Parser (Shunting Yard)', () => {
   it('should parse simple notation', () => {
@@ -49,10 +49,10 @@ describe('Parser (Shunting Yard)', () => {
     const types = result.rpn.map(t => t.type);
     expect(types).toEqual(['DICE', 'DICE', 'OPERATOR']);
   });
-  
+
   it('should throw on unbalanced parens', () => {
-      expect(() => parse('(1d6 + 2')).toThrow('Mismatched parentheses');
-      expect(() => parse('1d6 + 2)')).toThrow('Mismatched parentheses');
+    expect(() => parse('(1d6 + 2')).toThrow('Mismatched parentheses');
+    expect(() => parse('1d6 + 2)')).toThrow('Mismatched parentheses');
   });
 
   it('should throw on unknown characters', () => {

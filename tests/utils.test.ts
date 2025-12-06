@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { secureRoll, LIMITS } from './utils.js';
+import { secureRoll, LIMITS } from '../src/utils.js';
 
 describe('Utils', () => {
   describe('secureRoll', () => {

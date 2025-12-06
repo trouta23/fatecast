@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { roll } from './dice-engine.js';
-import * as utils from './utils.js';
-import { parse } from './parser.js';
+import { roll } from '../src/dice-engine.js';
+import * as utils from '../src/utils.js';
+import { parse } from '../src/parser.js';
 
 // Partially mock utils
-vi.mock('./utils.js', async (importOriginal) => {
+vi.mock('../src/utils.js', async (importOriginal) => {
   const actual = await importOriginal<typeof utils>();
   return {
     ...actual,
@@ -41,7 +41,7 @@ describe('Dice Engine', () => {
       .mockReturnValueOnce(4)
       .mockReturnValueOnce(5)
       .mockReturnValueOnce(6);
-      
+
     const command = parse('4d6dl1');
     const result = roll(command);
     expect(result.total).toBe(15);
@@ -56,27 +56,27 @@ describe('Dice Engine', () => {
     expect(result.total).toBe(9);
     expect(result.rolls).toEqual([6, 3]);
   });
-  
+
   it('should handle complex math (PEMDAS)', () => {
-      // (1d6 + 2) * 3
-      // Roll 4. (4+2)*3 = 18.
-      vi.mocked(utils.secureRoll).mockReturnValueOnce(4);
-      const command = parse('(1d6 + 2) * 3');
-      const result = roll(command);
-      expect(result.total).toBe(18);
-      // rolls should contain just [4]
-      expect(result.rolls).toEqual([4]);
+    // (1d6 + 2) * 3
+    // Roll 4. (4+2)*3 = 18.
+    vi.mocked(utils.secureRoll).mockReturnValueOnce(4);
+    const command = parse('(1d6 + 2) * 3');
+    const result = roll(command);
+    expect(result.total).toBe(18);
+    // rolls should contain just [4]
+    expect(result.rolls).toEqual([4]);
   });
 
   it('should handle multiple dice types', () => {
-      // 1d4 + 1d6
-      // 1d4 -> 2
-      // 1d6 -> 5
-      // Total 7
-      vi.mocked(utils.secureRoll).mockReturnValueOnce(2).mockReturnValueOnce(5);
-      const command = parse('1d4 + 1d6');
-      const result = roll(command);
-      expect(result.total).toBe(7);
-      expect(result.rolls).toEqual([2, 5]);
+    // 1d4 + 1d6
+    // 1d4 -> 2
+    // 1d6 -> 5
+    // Total 7
+    vi.mocked(utils.secureRoll).mockReturnValueOnce(2).mockReturnValueOnce(5);
+    const command = parse('1d4 + 1d6');
+    const result = roll(command);
+    expect(result.total).toBe(7);
+    expect(result.rolls).toEqual([2, 5]);
   });
 });
