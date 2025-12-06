@@ -12,6 +12,7 @@ You must strictly adhere to the decisions recorded in the `docs/architecture/` d
 *   **RNG:** @docs/architecture/001-secure-rng.md (NEVER use Math.random)
 *   **Structure:** @docs/architecture/002-layered-architecture.md (Separation of Concerns)
 *   **Typing:** @docs/architecture/003-strict-typescript.md (No `any`)
+*   **Modernization:** @docs/architecture/004-modernization-goals.md (Future Goals)
 
 ## 🛠 Development Rules
 1.  **Build First:** Always run `npm run build` to verify changes.

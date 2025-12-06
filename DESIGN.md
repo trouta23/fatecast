@@ -55,10 +55,9 @@ Parsing user input is a critical and sensitive part of the application. A naive 
 
 For the initial version, we will use a single, strictly-anchored regular expression. This provides a reasonable balance between functionality and security.
 
-*   **Pattern:** `^([1-9]\d*)?d([1-9]\d*|%)([lLhH]?\d+)?([+-]\d+)?$`
-    *   `^` and `$` anchors ensure the entire string must match, preventing partial matches and inefficient backtracking.
-    *   Groups will capture the number of dice, sides, and modifiers.
-*   **Sanitization:** All input strings will be truncated to a safe length (e.g., 50 characters) *before* being tested against the regex to mitigate any remaining ReDoS risk.
+*   **Pattern:** `^([1-9]\d*)?d([1-9]\d*|%)(!?)([kd][lh]?\d+)?([+-]\d+)?$`
+*   `^` and `$` anchors ensure the entire string must match.
+    *   Groups capture: Count, Sides, Explode (!), Keep/Drop (e.g., kh1), and Modifiers.*   **Sanitization:** All input strings will be truncated to a safe length (e.g., 50 characters) *before* being tested against the regex to mitigate any remaining ReDoS risk.
 
 ### 6.2. Future: Lexer/Parser
 

@@ -139,6 +139,15 @@ npm test
 npm run test:watch
 ```
 
+## 🔮 Roadmap
+
+We are actively working towards making FateCast a state-of-the-art reference implementation.
+
+*   **User Macros:** Save your favorite rolls (`fatecast save attack 2d20+5`).
+*   **Zero-Dependency:** Migrating to `util.parseArgs` and `node:test`.
+*   **Advanced Math:** Implementing the Shunting Yard algorithm for complex expressions.
+*   **Plugins:** A system for custom dice types (Fudge, Star Wars, etc.).
+
 ## 📝 License
 
 This project is licensed under the ISC License.
