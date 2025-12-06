@@ -1,8 +1,8 @@
 import { Command } from 'commander';
-import inquirer from 'inquirer';
+import { createInterface } from 'readline'; // Native Node.js REPL support
 import { parse } from './parser.js';
 import { roll } from './dice-engine.js';
-import * as ui from './ui.js'; // Will implement next
+import * as ui from './ui.js'; 
 
 const program = new Command();
 
@@ -35,7 +35,7 @@ async function handleRoll(notation, options) {
   } catch (error) {
     ui.displayError(error, options);
     // In pipeline mode, exit with error code if something fails
-    if (!options.interactive) { // distinct flag for clarity
+    if (!options.interactive) { 
       process.exitCode = 1;
     }
   }
@@ -44,44 +44,34 @@ async function handleRoll(notation, options) {
 async function startInteractiveMode(options) {
   ui.displayWelcome();
 
-  // Force verbose in interactive mode unless explicitly silenced (not impl yet)
-  // or maybe just default options?
-  // Let's keep passed options but interactive usually implies verbose-ish or pretty.
   const sessionOptions = { ...options, interactive: true };
 
-  try {
-    while (true) {
-      const answers = await inquirer.prompt([
-        {
-          type: 'input',
-          name: 'command',
-          message: 'Roll >',
-          prefix: '', // Clean look
-          validate: (input) => {
-             if (input.trim() === '') return 'Please enter a command.';
-             return true;
-          }
-        }
-      ]);
+  // using readline interface for history support
+  const rl = createInterface({
+    input: process.stdin,
+    output: process.stdout,
+    prompt: 'Roll > '
+  });
 
-      const input = answers.command.trim();
+  rl.prompt();
 
-      if (input.toLowerCase() === 'exit' || input.toLowerCase() === 'quit') {
-        console.log('Farewell!');
-        break;
-      }
+  rl.on('line', async (line) => {
+    const input = line.trim();
 
-      // Handle just hitting enter or empty is caught by validate, 
-      // but good to be safe.
-      
+    if (input.toLowerCase() === 'exit' || input.toLowerCase() === 'quit') {
+      rl.close();
+      return;
+    }
+
+    if (input) {
+      // We wait for the roll logic, but readline doesn't strictly await event listeners.
+      // However, since console.log is sync usually, it's fine.
       await handleRoll(input, sessionOptions);
     }
-  } catch (error) {
-    if (error.name === 'ExitPromptError' || error.message.includes('User force closed')) {
-      // User pressed Ctrl+C or similar
-      console.log('\nFarewell!');
-    } else {
-      throw error;
-    }
-  }
+
+    rl.prompt();
+  }).on('close', () => {
+    console.log('Farewell!');
+    process.exit(0);
+  });
 }
