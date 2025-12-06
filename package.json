@@ -1,13 +1,27 @@
 {
   "name": "dnd-dice-roller",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "A secure and robust command-line D&D dice roller.",
+  "main": "src/index.js",
+  "type": "module",
+  "bin": {
+    "fatecast": "./bin/fatecast"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
+  "keywords": [
+    "dnd",
+    "dice",
+    "roller",
+    "cli",
+    "ttrpg"
+  ],
   "author": "",
   "license": "ISC",
-  "type": "commonjs"
+  "dependencies": {
+    "chalk": "^5.6.2",
+    "commander": "^14.0.2",
+    "inquirer": "^13.0.2"
+  }
 }
