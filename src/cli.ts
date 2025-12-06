@@ -12,7 +12,7 @@ export function run(): void {
     .name('fatecast')
     .description('A secure and robust command-line D&D dice roller.')
     .version('1.0.0')
-    .argument('[notation]', 'Dice notation (e.g., "2d20+5")')
+    .argument('[notation]', 'Dice notation (e.g., "2d20+5" or "(1d6+2)*3")')
     .option('--json', 'Output result as JSON')
     .option('--verbose', 'Show detailed roll results')
     .action(async (notation: string | undefined, options: CLIOptions) => {

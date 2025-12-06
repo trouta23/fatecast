@@ -49,21 +49,19 @@ To ensure maintainability, testability, and a clear separation of concerns, the 
 
 ## 6. Parsing Strategy
 
-Parsing user input is a critical and sensitive part of the application. A naive regex can be inefficient and vulnerable to Regular Expression Denial of Service (ReDoS) attacks.
+Parsing user input is a critical and sensitive part of the application. To support complex mathematical expressions and ensuring correctness with the Order of Operations (PEMDAS), we have moved beyond simple regular expressions.
 
-### 6.1. MVP Approach: Strictly Anchored Regex
+### 6.1. Architecture: Tokenizer & Shunting Yard
 
-For the initial version, we will use a single, strictly-anchored regular expression. This provides a reasonable balance between functionality and security.
+The parsing process is now a robust two-stage pipeline:
 
-*   **Pattern:** `^([1-9]\d*)?d([1-9]\d*|%)(!?)([kd][lh]?\d+)?([+-]\d+)?$`
-*   `^` and `$` anchors ensure the entire string must match.
-    *   Groups capture: Count, Sides, Explode (!), Keep/Drop (e.g., kh1), and Modifiers.*   **Sanitization:** All input strings will be truncated to a safe length (e.g., 50 characters) *before* being tested against the regex to mitigate any remaining ReDoS risk.
+1.  **Lexer (Tokenizer):** Scans the input string and converts it into a stream of typed `Token` objects (e.g., `DICE(2d6)`, `OPERATOR(+)`, `NUMBER(5)`). It validates characters and handles basic syntax errors.
+2.  **Parser (Shunting Yard):** Implements Dijkstra's Shunting Yard algorithm to convert the infix token stream (human-readable) into a Reverse Polish Notation (RPN) queue. This automatically handles operator precedence (`*` before `+`) and parentheses.
 
-### 6.2. Future: Lexer/Parser
+### 6.2. Security
 
-For more complex syntax (see Roadmap), the regex will be replaced with a two-stage parser:
-1.  **Lexer (Tokenizer):** Scans the input string and converts it into a stream of tokens (e.g., `NUMBER(2)`, `D_SEPARATOR`, `NUMBER(20)`, `OPERATOR(+)`, `NUMBER(5)`).
-2.  **Parser:** Takes the token stream and builds an Abstract Syntax Tree (AST), which represents the mathematical structure of the command. This is a highly robust and extensible method.
+*   **Input Sanitization:** All input strings are truncated to a safe length (e.g., 50 characters) *before* tokenization to prevent resource exhaustion.
+*   **Validation:** The tokenizer strictly validates allowed characters, preventing code injection or unexpected behavior.
 
 ## 7. Random Number Generation (RNG)
 
@@ -109,6 +107,7 @@ To ensure the application is stable and secure, we will enforce strict limits on
 
 *   **Keep/Drop:** `4d6dl1` (roll 4 d6, drop the lowest 1).
 *   **Exploding Dice:** `1d6!` (if a 6 is rolled, roll again and add).
+*   **Complex Math:** `(1d8 + 2) * 2` (supports parentheses and standard operators).
 
 ## 11. Roadmap & Future Enhancements
 
@@ -126,7 +125,7 @@ The following enhancements are planned for future releases.
 
 To push the design to the "State of the Art," the following architectural shifts are planned (see ADR 004):
 
-1.  **Zero-Dependency:** Transition to `util.parseArgs` and `node:test` to minimize external deps.
-2.  **Shunting Yard Algorithm:** Adopt this algorithm for the Parser to handle complex math and precedence.
+1.  **Zero-Dependency:** [ON HOLD] Transition to `util.parseArgs` and `node:test` to minimize external deps.
+2.  **Shunting Yard Algorithm:** [COMPLETED] Adopt this algorithm for the Parser to handle complex math and precedence.
 3.  **Plugin System:** Refactor `DiceEngine` to use a plugin pattern for supporting diverse dice types (`dF`, `d%`).
 4.  **Async Context:** Use `AsyncLocalStorage` to manage session state without argument drilling.

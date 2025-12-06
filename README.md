@@ -7,7 +7,7 @@
 ## ✨ Key Features
 
 *   **Cryptographically Secure:** Uses Node.js `crypto.randomInt` instead of `Math.random()` to guarantee statistical fairness and unpredictability.
-*   **Robust Parsing:** Features a strictly anchored regex parser with input sanitization to prevent Regular Expression Denial of Service (ReDoS) attacks.
+*   **Robust Parsing:** Features a custom **Shunting Yard** parser and lexer to support complex mathematical expressions and mixed dice types (e.g., `(1d8 + 1d6) * 2`).
 *   **Two Modes:**
     *   **Pipeline Mode:** ideal for quick rolls (`fatecast 2d20`) and shell scripting.
     *   **Interactive Mode:** A rich REPL experience with command history and persistent session handling.
@@ -81,6 +81,7 @@ FateCast supports complex rolling strategies often used in modern TTRPGs:
 | `dlN` | **Drop Lowest N** | `4d6dl1` | Stat Generation |
 | `dhN` | **Drop Highest N** | `4d6dh1` | |
 | `!` | **Exploding Dice** | `1d6!` | Shadowrun / WoD (Aces) |
+| `(...)` | **Parentheses** | `(1d6+2)*3` | Complex Formulae |
 
 **Examples:**
 ```bash
@@ -90,8 +91,8 @@ fatecast 4d6dl1 --verbose
 # Rolls: [3, 5, 6, <s>1</s>]
 # Total: 14
 
-# Roll with Advantage
-fatecast 2d20kh1
+# Complex Damage Formula (Weapon + Hex + Mod) * Crit
+fatecast "(1d8 + 1d6 + 4) * 2"
 ```
 
 ### Options & Flags
@@ -145,7 +146,7 @@ We are actively working towards making FateCast a state-of-the-art reference imp
 
 *   **User Macros:** Save your favorite rolls (`fatecast save attack 2d20+5`).
 *   **Zero-Dependency:** Migrating to `util.parseArgs` and `node:test`.
-*   **Advanced Math:** Implementing the Shunting Yard algorithm for complex expressions.
+*   **Advanced Math:** ✅ Implementing the Shunting Yard algorithm for complex expressions.
 *   **Plugins:** A system for custom dice types (Fudge, Star Wars, etc.).
 
 ## 📝 License

@@ -1,83 +1,157 @@
+import { DiceCommand, KeepDrop, Token, TokenType } from './types.js';
 import { LIMITS } from './utils.js';
-import { DiceCommand, KeepDrop } from './types.js';
 
 /**
- * Safe Regex for Advanced Mechanics
- * Groups:
- * 1. Count (Optional)
- * 2. Sides (Required, can be '%')
- * 3. Explode (!) (Optional)
- * 4. Keep/Drop (e.g., 'kh1', 'dl2') (Optional)
- * 5. Modifier (+/- Z) (Optional)
+ * Token Patterns
+ * ORDER MATTERS! Dice must come before constants/operators if there's ambiguity.
  */
-const SAFE_REGEX = /^([1-9]\d*)?d([1-9]\d*|%)(!?)([kd][lh]?\d+)?([+-]\d+)?$/i;
+const PATTERNS: [TokenType, RegExp][] = [
+  // Dice: XdY or dY, optional suffix !khN etc.
+  // Note: We intentionally exclude [+-] at the end because those are operators now.
+  // We do NOT match strict start/end ^$ because we are scanning.
+  ['DICE', /([1-9]\d*)?d([1-9]\d*|%)(!?)([kd][lh]?\d+)?/y],
+  ['NUMBER', /\d+/y],
+  ['OPERATOR', /[+\-*/]/y],
+  ['PAREN_OPEN', /\(/y],
+  ['PAREN_CLOSE', /\)/y],
+];
+
+// Operators Precedence
+const PRECEDENCE: Record<string, number> = {
+  '+': 1,
+  '-': 1,
+  '*': 2,
+  '/': 2,
+};
+
+// Helper to parse the Dice Token string into params
 const KD_REGEX = /([kd])([lh]?)(\d+)/i;
+function parseDiceToken(raw: string): Token['diceParams'] {
+    const match = raw.match(/^([1-9]\d*)?d([1-9]\d*|%)(!?)([kd][lh]?\d+)?$/i);
+    if (!match) throw new Error(`Internal Error: Failed to re-parse dice token ${raw}`);
+
+    const count = match[1] ? parseInt(match[1], 10) : 1;
+    let sides: number;
+    if (match[2] === '%') sides = 100;
+    else sides = parseInt(match[2], 10);
+
+    const explode = match[3] === '!';
+    let keepDrop: KeepDrop | undefined;
+    const kdString = match[4];
+
+    if (kdString) {
+        const kdMatch = kdString.match(KD_REGEX);
+        if (kdMatch) {
+            const typeChar = kdMatch[1].toLowerCase();
+            const dirChar = kdMatch[2].toLowerCase();
+            const n = parseInt(kdMatch[3], 10);
+            let type: 'keep' | 'drop' = typeChar === 'k' ? 'keep' : 'drop';
+            let dir: 'high' | 'low' = (type === 'keep' ? 'high' : 'low'); // Default
+            if (dirChar === 'h') dir = 'high';
+            else if (dirChar === 'l') dir = 'low';
+            keepDrop = { type, dir, n };
+        }
+    }
+
+    return { count, sides, explode, keepDrop };
+}
+
+export function tokenize(input: string): Token[] {
+    let cursor = 0;
+    const tokens: Token[] = [];
+    const length = input.length;
+
+    while (cursor < length) {
+        // Skip whitespace
+        if (/\s/.test(input[cursor])) {
+            cursor++;
+            continue;
+        }
+
+        let matched = false;
+        for (const [type, regex] of PATTERNS) {
+            regex.lastIndex = cursor; // Sticky regex needs this
+            const match = regex.exec(input);
+            if (match) {
+                const value = match[0];
+                const token: Token = { type, value };
+                
+                if (type === 'DICE') {
+                    token.diceParams = parseDiceToken(value);
+                } else if (type === 'NUMBER') {
+                    token.numberValue = parseInt(value, 10);
+                }
+
+                tokens.push(token);
+                cursor += value.length;
+                matched = true;
+                break;
+            }
+        }
+
+        if (!matched) {
+            throw new Error(`Unexpected character at index ${cursor}: "${input[cursor]}"`);
+        }
+    }
+    return tokens;
+}
+
+export function shuntingYard(tokens: Token[]): Token[] {
+    const outputQueue: Token[] = [];
+    const operatorStack: Token[] = [];
+
+    for (const token of tokens) {
+        if (token.type === 'NUMBER' || token.type === 'DICE') {
+            outputQueue.push(token);
+        } else if (token.type === 'OPERATOR') {
+            while (operatorStack.length > 0) {
+                const top = operatorStack[operatorStack.length - 1];
+                if (top.type === 'OPERATOR' && (PRECEDENCE[top.value] >= PRECEDENCE[token.value])) {
+                    outputQueue.push(operatorStack.pop()!);
+                } else {
+                    break;
+                }
+            }
+            operatorStack.push(token);
+        } else if (token.type === 'PAREN_OPEN') {
+            operatorStack.push(token);
+        } else if (token.type === 'PAREN_CLOSE') {
+            while (operatorStack.length > 0 && operatorStack[operatorStack.length - 1].type !== 'PAREN_OPEN') {
+                outputQueue.push(operatorStack.pop()!);
+            }
+            if (operatorStack.length === 0) {
+                throw new Error('Mismatched parentheses.');
+            }
+            operatorStack.pop(); // Pop '('
+        }
+    }
+
+    while (operatorStack.length > 0) {
+        const top = operatorStack.pop()!;
+        if (top.type === 'PAREN_OPEN') {
+            throw new Error('Mismatched parentheses.');
+        }
+        outputQueue.push(top);
+    }
+
+    return outputQueue;
+}
 
 export function parse(input: string): DiceCommand {
   if (!input || typeof input !== 'string') {
     throw new Error('Input must be a non-empty string.');
   }
 
-  // 1. Input Truncation
   const cleanInput = input.trim().substring(0, LIMITS.MAX_INPUT_LENGTH);
-
-  // 2. Regex Validation
-  const match = cleanInput.match(SAFE_REGEX);
-
-  if (!match) {
-    throw new Error(`Invalid dice notation: "${cleanInput}". Expected format: XdY[!][khN|dlN][+Z]`);
-  }
-
-  // 3. Extract Groups
-  const count = match[1] ? parseInt(match[1], 10) : 1;
   
-  let sides: number;
-  if (match[2] === '%') {
-    sides = 100;
-  } else {
-    sides = parseInt(match[2], 10);
-  }
-
-  const explode = match[3] === '!';
+  // 1. Tokenize
+  const tokens = tokenize(cleanInput);
   
-  let keepDrop: KeepDrop | null = null;
-  const kdString = match[4];
+  // 2. Convert to RPN
+  const rpn = shuntingYard(tokens);
 
-  if (kdString) {
-    const kdMatch = kdString.match(KD_REGEX);
-    if (kdMatch) {
-      const typeChar = kdMatch[1].toLowerCase();
-      const dirChar = kdMatch[2].toLowerCase();
-      const n = parseInt(kdMatch[3], 10);
-
-      // Defaults
-      let type: 'keep' | 'drop' = typeChar === 'k' ? 'keep' : 'drop';
-      let dir: 'high' | 'low';
-
-      if (dirChar === 'h') dir = 'high';
-      else if (dirChar === 'l') dir = 'low';
-      else {
-        // Default direction if omitted
-        // k -> kh (Keep High)
-        // d -> dl (Drop Low)
-        dir = type === 'keep' ? 'high' : 'low';
-      }
-
-      keepDrop = { type, dir, n };
-    }
-  }
-
-  let modifier = 0;
-  if (match[5]) {
-    modifier = parseInt(match[5], 10);
-  }
-  
   return {
-    count,
-    sides,
-    modifier,
-    explode,
-    keepDrop,
+    rpn,
     original: cleanInput
   };
 }

@@ -6,6 +6,7 @@ To ensure "FateCast" remains a state-of-the-art reference implementation for Nod
 ## Decisions
 
 ### 1. Zero-Dependency Standard (Node.js Native Tooling)
+*   **Status:** ⏸️ **On Hold / Deprecated** (Decision: Retain `vitest` for potential future web frontend support).
 *   **Goal:** Remove heavy dependencies where native equivalents exist.
 *   **Strategy:** 
     *   Replace `commander` with `util.parseArgs` (native argument parsing).
@@ -13,9 +14,8 @@ To ensure "FateCast" remains a state-of-the-art reference implementation for Nod
 *   **Benefit:** Faster install, smaller binary, no dependency drift.
 
 ### 2. Shunting Yard Algorithm for Parsing
-*   **Goal:** Support complex mathematical expressions (Order of Operations) robustly.
-*   **Strategy:** Replace the current Regex-based parser with a proper Lexer/Parser implementing Dijkstra's Shunting Yard Algorithm.
-*   **Benefit:** Handles `1d20 + 2d6 * 2` correctly (PEMDAS).
+*   **Status:** ✅ **Completed**
+*   **Benefit:** Handles `1d20 + 2d6 * 2` correctly (PEMDAS) and supports complex, mixed-dice expressions.
 
 ### 3. Plugin Architecture
 *   **Goal:** Prevent the `DiceEngine` from becoming a monolithic "God Class".
