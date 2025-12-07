@@ -6,34 +6,40 @@ import { LIMITS } from './utils.js';
  * ORDER MATTERS! Dice must come before constants/operators if there's ambiguity.
  */
 const PATTERNS: [TokenType, RegExp][] = [
-  // Dice: XdY or dY, optional suffix !khN etc.
-  // Note: We intentionally exclude [+-] at the end because those are operators now.
-  // We do NOT match strict start/end ^$ because we are scanning.
-  ['DICE', /([1-9]\d*)?d([1-9]\d*|%)(!?)([kd][lh]?\d+)?/y],
-  ['NUMBER', /\d+/y],
-  ['OPERATOR', /[+\-*/]/y],
-  ['PAREN_OPEN', /\(/y],
-  ['PAREN_CLOSE', /\)/y],
+    // Dice: XdY, dY, Xdh, dh, optional suffix !khN etc.
+    ['DICE', /([1-9]\d*)?d([1-9]\d*|%|h)(!?)([kd][lh]?\d+)?/y],
+    ['NUMBER', /\d+/y],
+    ['OPERATOR', /[+\-*/]/y],
+    ['PAREN_OPEN', /\(/y],
+    ['PAREN_CLOSE', /\)/y],
 ];
 
 // Operators Precedence
 const PRECEDENCE: Record<string, number> = {
-  '+': 1,
-  '-': 1,
-  '*': 2,
-  '/': 2,
+    '+': 1,
+    '-': 1,
+    '*': 2,
+    '/': 2,
 };
 
 // Helper to parse the Dice Token string into params
 const KD_REGEX = /([kd])([lh]?)(\d+)/i;
 function parseDiceToken(raw: string): Token['diceParams'] {
-    const match = raw.match(/^([1-9]\d*)?d([1-9]\d*|%)(!?)([kd][lh]?\d+)?$/i);
+    const match = raw.match(/^([1-9]\d*)?d([1-9]\d*|%|h)(!?)([kd][lh]?\d+)?$/i);
     if (!match) throw new Error(`Internal Error: Failed to re-parse dice token ${raw}`);
 
-    const count = match[1] ? parseInt(match[1], 10) : 1;
+    const count = match[1] ? parseInt(match[1], 10) : 1; // Default to 1 (pair if dh)
     let sides: number;
-    if (match[2] === '%') sides = 100;
-    else sides = parseInt(match[2], 10);
+    let variant: 'standard' | 'daggerheart' = 'standard';
+
+    if (match[2] === '%') {
+        sides = 100;
+    } else if (match[2].toLowerCase() === 'h') {
+        sides = 12; // Daggerheart uses d12s
+        variant = 'daggerheart';
+    } else {
+        sides = parseInt(match[2], 10);
+    }
 
     const explode = match[3] === '!';
     let keepDrop: KeepDrop | undefined;
@@ -53,7 +59,7 @@ function parseDiceToken(raw: string): Token['diceParams'] {
         }
     }
 
-    return { count, sides, explode, keepDrop };
+    return { count, sides, explode, keepDrop, variant };
 }
 
 export function tokenize(input: string): Token[] {
@@ -75,7 +81,7 @@ export function tokenize(input: string): Token[] {
             if (match) {
                 const value = match[0];
                 const token: Token = { type, value };
-                
+
                 if (type === 'DICE') {
                     token.diceParams = parseDiceToken(value);
                 } else if (type === 'NUMBER') {
@@ -138,20 +144,20 @@ export function shuntingYard(tokens: Token[]): Token[] {
 }
 
 export function parse(input: string): DiceCommand {
-  if (!input || typeof input !== 'string') {
-    throw new Error('Input must be a non-empty string.');
-  }
+    if (!input || typeof input !== 'string') {
+        throw new Error('Input must be a non-empty string.');
+    }
 
-  const cleanInput = input.trim().substring(0, LIMITS.MAX_INPUT_LENGTH);
-  
-  // 1. Tokenize
-  const tokens = tokenize(cleanInput);
-  
-  // 2. Convert to RPN
-  const rpn = shuntingYard(tokens);
+    const cleanInput = input.trim().substring(0, LIMITS.MAX_INPUT_LENGTH);
 
-  return {
-    rpn,
-    original: cleanInput
-  };
+    // 1. Tokenize
+    const tokens = tokenize(cleanInput);
+
+    // 2. Convert to RPN
+    const rpn = shuntingYard(tokens);
+
+    return {
+        rpn,
+        original: cleanInput
+    };
 }

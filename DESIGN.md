@@ -127,5 +127,5 @@ To push the design to the "State of the Art," the following architectural shifts
 
 1.  **Zero-Dependency:** [ON HOLD] Transition to `util.parseArgs` and `node:test` to minimize external deps.
 2.  **Shunting Yard Algorithm:** [COMPLETED] Adopt this algorithm for the Parser to handle complex math and precedence.
-3.  **Plugin System:** Refactor `DiceEngine` to use a plugin pattern for supporting diverse dice types (`dF`, `d%`).
+3.  **Plugin System:** [COMPLETED] Refactor `DiceEngine` to use a plugin pattern for supporting diverse dice types (`dF`, `d%`).
 4.  **Async Context:** Use `AsyncLocalStorage` to manage session state without argument drilling.

@@ -7,7 +7,7 @@ export class StandardDiceRule implements DiceRule {
     name = 'StandardDice';
 
     canProcess(token: Token): boolean {
-        return token.type === 'DICE' && !!token.diceParams;
+        return token.type === 'DICE' && !!token.diceParams && token.diceParams.variant === 'standard';
     }
 
     roll(token: Token): RollResult {

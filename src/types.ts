@@ -15,6 +15,7 @@ export interface Token {
     sides: number;
     keepDrop?: KeepDrop;
     explode?: boolean;
+    variant?: 'standard' | 'daggerheart';
   };
   // Pre-parsed value for NUMBER tokens
   numberValue?: number;
@@ -34,6 +35,7 @@ export interface RollResult {
   timestamp: string;
   // Optional: For future complex UI
   children?: RollResult[];
+  metadata?: Record<string, any>;
 }
 
 export interface CLIOptions {

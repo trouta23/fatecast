@@ -1,9 +1,11 @@
 import { secureRoll, LIMITS } from './utils.js';
 import { DiceCommand, RollResult, Token, KeepDrop, DiceRule } from './types.js';
 import { StandardDiceRule } from './rules/StandardDiceRule.js';
+import { DaggerheartDiceRule } from './rules/DaggerheartDiceRule.js';
 
 // Registry of rules
 const rules: DiceRule[] = [
+  new DaggerheartDiceRule(),
   new StandardDiceRule()
 ];
 
@@ -57,13 +59,17 @@ function operate(left: RollResult, right: RollResult, op: string): RollResult {
   if (op === '+') modifier = left.modifier + right.modifier;
   else if (op === '-') modifier = left.modifier - right.modifier;
 
+  // Merge metadata
+  const metadata = { ...left.metadata, ...right.metadata };
+
   return {
     total,
     rolls,
     dropped,
     modifier,
     notation: `(${left.notation} ${op} ${right.notation})`,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    metadata
   };
 }
 

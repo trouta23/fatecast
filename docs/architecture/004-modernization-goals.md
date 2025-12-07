@@ -18,6 +18,7 @@ To ensure "FateCast" remains a state-of-the-art reference implementation for Nod
 *   **Benefit:** Handles `1d20 + 2d6 * 2` correctly (PEMDAS) and supports complex, mixed-dice expressions.
 
 ### 3. Plugin Architecture
+*   **Status:** ✅ **Completed**
 *   **Goal:** Prevent the `DiceEngine` from becoming a monolithic "God Class".
 *   **Strategy:** Implement a `DiceRule` interface to support custom dice (e.g., Fudge dice `dF`, Exploding `d6!`) as isolated plugins.
 *   **Benefit:** Infinite extensibility without core code modification.
