@@ -33,11 +33,17 @@ export interface RollResult {
   notation: string;
   timestamp: string;
   // Optional: For future complex UI
-  children?: RollResult[]; 
+  children?: RollResult[];
 }
 
 export interface CLIOptions {
   json?: boolean;
   verbose?: boolean;
   interactive?: boolean;
+}
+
+export interface DiceRule {
+  name: string;
+  canProcess(token: Token): boolean;
+  roll(token: Token): RollResult;
 }
