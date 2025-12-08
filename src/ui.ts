@@ -48,7 +48,7 @@ export function display(result: RollResult, options: CLIOptions): void {
     totalStr = chalk.bold.cyan(totalStr);
   }
 
-  if (options.verbose || options.interactive) {
+  if (!options.brief) {
     const rollDetails = rolls.map((r, i) => {
       if (dropped.includes(i)) {
         return chalk.strikethrough.gray(r);

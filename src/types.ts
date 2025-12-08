@@ -40,7 +40,7 @@ export interface RollResult {
 
 export interface CLIOptions {
   json?: boolean;
-  verbose?: boolean;
+  brief?: boolean;
   interactive?: boolean;
 }
 
