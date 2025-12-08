@@ -80,6 +80,7 @@ FateCast supports complex rolling strategies often used in modern TTRPGs:
 | `klN` | **Keep Lowest N** | `2d20kl1` | D&D 5e Disadvantage |
 | `dlN` | **Drop Lowest N** | `4d6dl1` | Stat Generation |
 | `dh` | **Daggerheart Duality** | `dh+2` | Daggerheart (Hope/Fear) |
+| `dF` | **Fudge/Fate Dice** | `4dF` | Fate Core / Fudge |
 | `dhN` | **Drop Highest N** | `4d6dh1` | |
 | `!` | **Exploding Dice** | `1d6!` | Shadowrun / WoD (Aces) |
 | `(...)` | **Parentheses** | `(1d6+2)*3` | Complex Formulae |

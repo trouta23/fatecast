@@ -1,11 +1,14 @@
 import { secureRoll, LIMITS } from './utils.js';
-import { DiceCommand, RollResult, Token, KeepDrop, DiceRule } from './types.js';
+import { DiceRule, Token, RollResult, DiceCommand } from './types.js';
 import { StandardDiceRule } from './rules/StandardDiceRule.js';
 import { DaggerheartDiceRule } from './rules/DaggerheartDiceRule.js';
+import { FudgeDiceRule } from './rules/FudgeDiceRule.js';
 
-// Registry of rules
+// Registry of Rules
+// Order matters: More specific rules should come first.
 const rules: DiceRule[] = [
   new DaggerheartDiceRule(),
+  new FudgeDiceRule(),
   new StandardDiceRule()
 ];
 

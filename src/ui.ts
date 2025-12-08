@@ -53,6 +53,13 @@ export function display(result: RollResult, options: CLIOptions): void {
       if (dropped.includes(i)) {
         return chalk.strikethrough.gray(r);
       }
+      // Fudge Dice proper formatting
+      if (result.metadata?.fudge) {
+        if (r === -1) return chalk.red('[-]');
+        if (r === 0) return chalk.gray('[ ]');
+        if (r === 1) return chalk.green('[+]');
+      }
+
       // Color individual 20s/1s if it's a d20 roll
       if (notation.includes('d20')) {
         if (r === 20) return chalk.green(r);

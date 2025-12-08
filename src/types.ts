@@ -15,7 +15,7 @@ export interface Token {
     sides: number;
     keepDrop?: KeepDrop;
     explode?: boolean;
-    variant?: 'standard' | 'daggerheart';
+    variant?: 'standard' | 'daggerheart' | 'fudge';
   };
   // Pre-parsed value for NUMBER tokens
   numberValue?: number;
