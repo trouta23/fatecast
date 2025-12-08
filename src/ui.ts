@@ -60,6 +60,19 @@ export function display(result: RollResult, options: CLIOptions): void {
         if (r === 1) return chalk.green('[+]');
       }
 
+      // MCP Formatting
+      if (result.metadata?.mcp) {
+        const symbol = result.metadata.symbols[i];
+        switch (symbol) {
+          case 'hit': return chalk.bold.red('[HIT]');
+          case 'block': return chalk.bold.blue('[BLOCK]');
+          case 'crit': return chalk.bold.yellow('[CRIT!]');
+          case 'wild': return chalk.bold.green('[WILD]');
+          case 'blank': return chalk.dim('[ ]');
+          default: return chalk.dim('[?]');
+        }
+      }
+
       // Color individual 20s/1s if it's a d20 roll
       if (notation.includes('d20')) {
         if (r === 20) return chalk.green(r);

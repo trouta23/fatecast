@@ -6,8 +6,8 @@ import { LIMITS } from './utils.js';
  * ORDER MATTERS! Dice must come before constants/operators if there's ambiguity.
  */
 const PATTERNS: [TokenType, RegExp][] = [
-    // Dice: XdY, dY, Xdh, dh, optional suffix !khN etc.
-    ['DICE', /([1-9]\d*)?d([1-9]\d*|%|h|f)(!?)([kd][lh]?\d+)?/iy], // Added 'f' flag
+    // Dice: XdY, dY, Xdh, dh, dF, dRed, dBlue...
+    ['DICE', /([1-9]\d*)?d([1-9]\d*|%|h|f|mcpatk|mcpdef)(!?)([kd][lh]?\d+)?/iy],
     ['NUMBER', /\d+/y],
     ['OPERATOR', /[+\-*/]/y],
     ['PAREN_OPEN', /\(/y],
@@ -25,21 +25,27 @@ const PRECEDENCE: Record<string, number> = {
 // Helper to parse the Dice Token string into params
 const KD_REGEX = /([kd])([lh]?)(\d+)/i;
 function parseDiceToken(raw: string): Token['diceParams'] {
-    const match = raw.match(/^([1-9]\d*)?d([1-9]\d*|%|h|f)(!?)([kd][lh]?\d+)?$/i);
+    const match = raw.match(/^([1-9]\d*)?d([1-9]\d*|%|h|f|mcpatk|mcpdef)(!?)([kd][lh]?\d+)?$/i);
     if (!match) throw new Error(`Internal Error: Failed to re-parse dice token ${raw}`);
 
     const count = match[1] ? parseInt(match[1], 10) : 1;
     let sides: number;
-    let variant: 'standard' | 'daggerheart' | 'fudge' = 'standard';
+    let variant: 'standard' | 'daggerheart' | 'fudge' | 'mcp_attack' | 'mcp_defense' = 'standard';
 
     if (match[2] === '%') {
         sides = 100;
     } else if (match[2].toLowerCase() === 'h') {
-        sides = 12; // Daggerheart uses d12s
+        sides = 12; // Daggerheart
         variant = 'daggerheart';
     } else if (match[2].toLowerCase() === 'f') {
-        sides = 3; // Fudge dice simulated as d3 (1=minus, 2=blank, 3=plus)
+        sides = 3; // Fudge
         variant = 'fudge';
+    } else if (match[2].toLowerCase() === 'mcpatk') {
+        sides = 8;
+        variant = 'mcp_attack';
+    } else if (match[2].toLowerCase() === 'mcpdef') {
+        sides = 8;
+        variant = 'mcp_defense';
     } else {
         sides = parseInt(match[2], 10);
     }

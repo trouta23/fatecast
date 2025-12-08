@@ -3,10 +3,12 @@ import { DiceRule, Token, RollResult, DiceCommand } from './types.js';
 import { StandardDiceRule } from './rules/StandardDiceRule.js';
 import { DaggerheartDiceRule } from './rules/DaggerheartDiceRule.js';
 import { FudgeDiceRule } from './rules/FudgeDiceRule.js';
+import { CrisisProtocolDiceRule } from './rules/CrisisProtocolDiceRule.js';
 
 // Registry of Rules
 // Order matters: More specific rules should come first.
 const rules: DiceRule[] = [
+  new CrisisProtocolDiceRule(),
   new DaggerheartDiceRule(),
   new FudgeDiceRule(),
   new StandardDiceRule()
