@@ -7,6 +7,7 @@ import * as ui from './ui.js';
 import { CLIOptions } from './types.js';
 
 import { ConfigManager } from './config.js';
+import { SYSTEMS, getSystem, listSystems } from './systems.js';
 
 const program = new Command();
 
@@ -117,12 +118,6 @@ async function startInteractiveMode(options: CLIOptions): Promise<void> {
 
   // System Context State
   let currentSystem = 'standard';
-  const SYSTEM_ALIASES: Record<string, Array<{ pattern: RegExp, replacement: string }>> = {
-    mcp: [
-      { pattern: /dAtk/gi, replacement: 'dMcpAtk' },
-      { pattern: /dDef/gi, replacement: 'dMcpDef' }
-    ]
-  };
 
   rl.on('line', async (line) => {
     let input = line.trim();
@@ -161,14 +156,15 @@ async function startInteractiveMode(options: CLIOptions): Promise<void> {
           if (arg === 'list') {
             console.log('Available Systems:');
             console.log(`  standard (Default)`);
-            const keys = Object.keys(SYSTEM_ALIASES);
-            console.log('DEBUG keys:', keys);
-            keys.forEach(s => console.log(`  ${s}`));
-          } else if (arg === 'standard' || SYSTEM_ALIASES[arg]) {
+            listSystems().forEach(key => {
+              const sys = getSystem(key);
+              console.log(`  ${key}: ${sys?.name} - ${sys?.description}`);
+            });
+          } else if (arg === 'standard' || getSystem(arg)) {
             currentSystem = arg;
             console.log(`System set to '${arg}'.`);
             if (arg !== 'standard') {
-              console.log(chalk.dim(`Aliases active for ${arg}.`));
+              console.log(chalk.dim(`Aliases active for ${getSystem(arg)?.name}.`));
             }
           } else {
             console.log(chalk.red(`Unknown system '${arg}'. Type 'system list' to see available options.`));
@@ -178,14 +174,15 @@ async function startInteractiveMode(options: CLIOptions): Promise<void> {
         }
       } else {
         // Apply System Aliases if not a command
-        if (currentSystem !== 'standard' && SYSTEM_ALIASES[currentSystem]) {
+        const sys = getSystem(currentSystem);
+        if (sys && sys.aliases.length > 0) {
           let original = input;
-          SYSTEM_ALIASES[currentSystem].forEach(rule => {
+          sys.aliases.forEach(rule => {
             input = input.replace(rule.pattern, rule.replacement);
           });
 
           if (input !== original && !options.brief) {
-            console.log(chalk.dim(`[${currentSystem.toUpperCase()}] Alias: ${original} -> ${input}`));
+            console.log(chalk.dim(`[${sys.name}] Alias: ${original} -> ${input}`));
           }
         }
 
