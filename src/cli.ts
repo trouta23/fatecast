@@ -1,4 +1,5 @@
 import { Command } from 'commander';
+import chalk from 'chalk';
 import { createInterface } from 'readline';
 import { parse } from './parser.js';
 import { roll } from './dice-engine.js';
@@ -114,8 +115,17 @@ async function startInteractiveMode(options: CLIOptions): Promise<void> {
 
   rl.prompt();
 
+  // System Context State
+  let currentSystem = 'standard';
+  const SYSTEM_ALIASES: Record<string, Array<{ pattern: RegExp, replacement: string }>> = {
+    mcp: [
+      { pattern: /dAtk/gi, replacement: 'dMcpAtk' },
+      { pattern: /dDef/gi, replacement: 'dMcpDef' }
+    ]
+  };
+
   rl.on('line', async (line) => {
-    const input = line.trim();
+    let input = line.trim();
 
     if (input.toLowerCase() === 'exit' || input.toLowerCase() === 'quit') {
       rl.close();
@@ -142,11 +152,43 @@ async function startInteractiveMode(options: CLIOptions): Promise<void> {
         console.log(`Deleted macro '${name}'`);
       } else if (cmd === 'save' && parts.length > 2) {
         const name = parts[1];
-        // Re-join the rest for complex notation
         const notation = parts.slice(2).join(' ');
         ConfigManager.setMacro(name, notation);
         console.log(`Saved macro '${name}' as '${notation}'`);
+      } else if (cmd === 'system') {
+        if (parts.length > 1) {
+          const arg = parts[1].toLowerCase();
+          if (arg === 'list') {
+            console.log('Available Systems:');
+            console.log(`  standard (Default)`);
+            const keys = Object.keys(SYSTEM_ALIASES);
+            console.log('DEBUG keys:', keys);
+            keys.forEach(s => console.log(`  ${s}`));
+          } else if (arg === 'standard' || SYSTEM_ALIASES[arg]) {
+            currentSystem = arg;
+            console.log(`System set to '${arg}'.`);
+            if (arg !== 'standard') {
+              console.log(chalk.dim(`Aliases active for ${arg}.`));
+            }
+          } else {
+            console.log(chalk.red(`Unknown system '${arg}'. Type 'system list' to see available options.`));
+          }
+        } else {
+          console.log(`Current system: ${currentSystem} (Type 'system list' to see all)`);
+        }
       } else {
+        // Apply System Aliases if not a command
+        if (currentSystem !== 'standard' && SYSTEM_ALIASES[currentSystem]) {
+          let original = input;
+          SYSTEM_ALIASES[currentSystem].forEach(rule => {
+            input = input.replace(rule.pattern, rule.replacement);
+          });
+
+          if (input !== original && !options.brief) {
+            console.log(chalk.dim(`[${currentSystem.toUpperCase()}] Alias: ${original} -> ${input}`));
+          }
+        }
+
         // Default: Roll or expand macro
         await handleRoll(input, sessionOptions);
       }
